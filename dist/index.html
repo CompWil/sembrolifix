@@ -7,13 +7,13 @@
   <meta property="og:image" content="https://bolt.new/static/og_default.png">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://bolt.new/static/og_default.png">
-  <script type="module" crossorigin src="/assets/index-CdPpDD-L.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-DoRg6O2W.css">
+  <script type="module" crossorigin src="/assets/index-DNXOMHKP.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-N8j46EUl.css">
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>Sales Tracker</h1>
+      <h1>SEMBROLI</h1>
       <button id="addSaleBtn" class="btn-primary">+ Add Sale</button>
     </header>
 
@@ -21,6 +21,22 @@
       <!-- Sales Table Section -->
       <section class="card sales-section">
         <h2>Recent Sales</h2>
+
+        <!-- Filter Controls -->
+        <div class="filter-controls">
+          <div class="filter-group">
+            <label for="filterDate">Filter by Date:</label>
+            <input type="date" id="filterDate">
+          </div>
+          <div class="filter-group">
+            <label for="filterItem">Filter by Item:</label>
+            <select id="filterItem">
+              <option value="">All Items</option>
+            </select>
+          </div>
+          <button id="resetFiltersBtn" class="btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">Reset Filters</button>
+        </div>
+
         <div class="table-container">
           <table id="salesTable">
             <thead>
