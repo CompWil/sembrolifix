@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import Chart from 'chart.js/auto';
+
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -7,7 +7,6 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 let items = [];
 let sales = [];
-let chart = null;
 let itemRowCount = 0;
 
 const modal = document.getElementById('saleModal');
@@ -22,6 +21,7 @@ const saleDateInput = document.getElementById('saleDate');
 const filterDateInput = document.getElementById('filterDate');
 const filterItemSelect = document.getElementById('filterItem');
 const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+const popularItemsTableBody = document.getElementById('popularItemsTableBody');
 
 saleDateInput.valueAsDate = new Date();
 
@@ -133,17 +133,35 @@ async function loadSales() {
   updateChart();
 }
 
-function populateItemFilter() {
-  const uniqueItems = new Set();
-  sales.forEach(sale => {
-    sale.sale_items.forEach(item => {
-      uniqueItems.add(JSON.stringify({ id: item.item_id, name: item.items.name }));
+function updatePopularItemsTable(salesToProcess) {
+  const itemCounts = {};
+
+  // Hitung total kuantitas per item
+  salesToProcess.forEach(sale => {
+    sale.sale_items.forEach(saleItem => {
+      const itemName = saleItem.items.name;
+      itemCounts[itemName] = (itemCounts[itemName] || 0) + saleItem.quantity;
     });
   });
 
-  const itemsArray = Array.from(uniqueItems)
-    .map(item => JSON.parse(item))
-    .sort((a, b) => a.name.localeCompare(b.name));
+  // Ubah ke array, buang yang 0 (jika ada), dan urutkan dari yang paling laku
+  const sortedItems = Object.entries(itemCounts)
+    .filter(item => item[1] > 0) 
+    .sort((a, b) => b[1] - a[1]);
+
+  // Render ke dalam tabel
+  if (sortedItems.length === 0) {
+    popularItemsTableBody.innerHTML = '<tr><td colspan="2" class="loading">No items sold in this period</td></tr>';
+    return;
+  }
+
+  popularItemsTableBody.innerHTML = sortedItems.map(item => `
+    <tr>
+      <td>${item[0]}</td>
+      <td><strong>${item[1]}</strong></td>
+    </tr>
+  `).join('');
+}
 
   filterItemSelect.innerHTML = '<option value="">All Items</option>';
   itemsArray.forEach(item => {
