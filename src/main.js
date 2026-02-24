@@ -163,14 +163,6 @@ function updatePopularItemsTable(salesToProcess) {
   `).join('');
 }
 
-  filterItemSelect.innerHTML = '<option value="">All Items</option>';
-  itemsArray.forEach(item => {
-    const option = document.createElement('option');
-    option.value = item.id;
-    option.textContent = item.name;
-    filterItemSelect.appendChild(option);
-  });
-}
 
 function applyFilters() {
   const selectedDate = filterDateInput.value;
