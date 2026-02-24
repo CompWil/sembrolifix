@@ -19,6 +19,9 @@ const salesTableBody = document.getElementById('salesTableBody');
 const itemsContainer = document.getElementById('itemsContainer');
 const addItemBtn = document.getElementById('addItemBtn');
 const saleDateInput = document.getElementById('saleDate');
+const filterDateInput = document.getElementById('filterDate');
+const filterItemSelect = document.getElementById('filterItem');
+const resetFiltersBtn = document.getElementById('resetFiltersBtn');
 
 saleDateInput.valueAsDate = new Date();
 
@@ -48,6 +51,14 @@ modal.addEventListener('click', (e) => {
   if (e.target === modal) {
     closeModal();
   }
+});
+
+filterDateInput.addEventListener('change', applyFilters);
+filterItemSelect.addEventListener('change', applyFilters);
+resetFiltersBtn.addEventListener('click', () => {
+  filterDateInput.value = '';
+  filterItemSelect.value = '';
+  applyFilters();
 });
 
 function addItemRow() {
@@ -102,6 +113,7 @@ async function loadSales() {
       *,
       sale_items (
         quantity,
+        item_id,
         items (
           name
         )
@@ -116,17 +128,59 @@ async function loadSales() {
   }
 
   sales = data || [];
+  populateItemFilter();
   displaySales();
   updateChart();
 }
 
-function displaySales() {
-  if (sales.length === 0) {
-    salesTableBody.innerHTML = '<tr><td colspan="4" class="loading">No sales recorded yet</td></tr>';
+function populateItemFilter() {
+  const uniqueItems = new Set();
+  sales.forEach(sale => {
+    sale.sale_items.forEach(item => {
+      uniqueItems.add(JSON.stringify({ id: item.item_id, name: item.items.name }));
+    });
+  });
+
+  const itemsArray = Array.from(uniqueItems)
+    .map(item => JSON.parse(item))
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  filterItemSelect.innerHTML = '<option value="">All Items</option>';
+  itemsArray.forEach(item => {
+    const option = document.createElement('option');
+    option.value = item.id;
+    option.textContent = item.name;
+    filterItemSelect.appendChild(option);
+  });
+}
+
+function applyFilters() {
+  const selectedDate = filterDateInput.value;
+  const selectedItem = filterItemSelect.value;
+
+  let filtered = sales;
+
+  if (selectedDate) {
+    filtered = filtered.filter(sale => sale.sale_date === selectedDate);
+  }
+
+  if (selectedItem) {
+    filtered = filtered.filter(sale =>
+      sale.sale_items.some(si => si.item_id === selectedItem)
+    );
+  }
+
+  displaySalesFiltered(filtered);
+  updateChartForFiltered(filtered);
+}
+
+function displaySalesFiltered(salesToDisplay) {
+  if (salesToDisplay.length === 0) {
+    salesTableBody.innerHTML = '<tr><td colspan="4" class="loading">No sales match the selected filters</td></tr>';
     return;
   }
 
-  salesTableBody.innerHTML = sales.map(sale => {
+  salesTableBody.innerHTML = salesToDisplay.map(sale => {
     const itemsList = sale.sale_items
       .map(si => `${si.items.name} (${si.quantity})`)
       .join(', ');
@@ -142,6 +196,15 @@ function displaySales() {
       </tr>
     `;
   }).join('');
+}
+
+function displaySales() {
+  if (sales.length === 0) {
+    salesTableBody.innerHTML = '<tr><td colspan="4" class="loading">No sales recorded yet</td></tr>';
+    return;
+  }
+
+  displaySalesFiltered(sales);
 }
 
 function formatDate(dateString) {
@@ -232,9 +295,13 @@ window.deleteSale = async (id) => {
 };
 
 function updateChart() {
+  updateChartForFiltered(sales);
+}
+
+function updateChartForFiltered(salesToChart) {
   const itemCounts = {};
 
-  sales.forEach(sale => {
+  salesToChart.forEach(sale => {
     sale.sale_items.forEach(saleItem => {
       const itemName = saleItem.items.name;
       itemCounts[itemName] = (itemCounts[itemName] || 0) + saleItem.quantity;
