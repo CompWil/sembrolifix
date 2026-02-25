@@ -99,6 +99,23 @@ h2 {
   background-color: var(--danger-hover);
 }
 
+.btn-icon {
+  background: none;
+  border: none;
+  color: var(--danger);
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, transform 0.2s;
+}
+
+.btn-icon:hover {
+  color: var(--danger-hover);
+  transform: scale(1.1);
+}
+
 .content-grid {
   display: grid;
   grid-template-columns: 1fr;

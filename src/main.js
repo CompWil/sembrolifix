@@ -186,7 +186,7 @@ function applyFilters() {
 
 function displaySalesFiltered(salesToDisplay) {
   if (salesToDisplay.length === 0) {
-    salesTableBody.innerHTML = '<tr><td colspan="4" class="loading">No sales match the selected filters</td></tr>';
+    salesTableBody.innerHTML = '<tr><td colspan="5" class="loading">No sales match the selected filters</td></tr>';
     return;
   }
 
@@ -200,8 +200,13 @@ function displaySalesFiltered(salesToDisplay) {
         <td>${formatDate(sale.sale_date)}</td>
         <td>${sale.buyer_name}</td>
         <td>${itemsList}</td>
+        <td>${sale.shipping}</td>
         <td>
-          <button class="btn-danger" onclick="deleteSale('${sale.id}')">Delete</button>
+          <button class="btn-icon" onclick="deleteSale('${sale.id}')" title="Delete sale">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h16zM10 11v6M14 11v6"/>
+            </svg>
+          </button>
         </td>
       </tr>
     `;
@@ -210,7 +215,7 @@ function displaySalesFiltered(salesToDisplay) {
 
 function displaySales() {
   if (sales.length === 0) {
-    salesTableBody.innerHTML = '<tr><td colspan="4" class="loading">No sales recorded yet</td></tr>';
+    salesTableBody.innerHTML = '<tr><td colspan="5" class="loading">No sales recorded yet</td></tr>';
     return;
   }
 
@@ -231,6 +236,7 @@ saleForm.addEventListener('submit', async (e) => {
 
   const buyerName = document.getElementById('buyerName').value;
   const saleDate = document.getElementById('saleDate').value;
+  const shipping = document.getElementById('shipping').value;
 
   const itemRows = Array.from(itemsContainer.querySelectorAll('.item-row'));
   const saleItems = itemRows.map(row => {
@@ -252,7 +258,8 @@ saleForm.addEventListener('submit', async (e) => {
     .insert([
       {
         buyer_name: buyerName,
-        sale_date: saleDate
+        sale_date: saleDate,
+        shipping: shipping
       }
     ])
     .select();
@@ -309,70 +316,7 @@ function updateChart() {
 }
 
 function updateChartForFiltered(salesToChart) {
-  const itemCounts = {};
-
-  salesToChart.forEach(sale => {
-    sale.sale_items.forEach(saleItem => {
-      const itemName = saleItem.items.name;
-      itemCounts[itemName] = (itemCounts[itemName] || 0) + saleItem.quantity;
-    });
-  });
-
-  const sortedItems = Object.entries(itemCounts)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 5);
-
-  const labels = sortedItems.map(item => item[0]);
-  const data = sortedItems.map(item => item[1]);
-
-  if (chart) {
-    chart.destroy();
-  }
-
-  const ctx = document.getElementById('trendChart').getContext('2d');
-  chart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: 'Items Sold',
-        data: data,
-        backgroundColor: '#2563eb',
-        borderColor: '#1d4ed8',
-        borderWidth: 1,
-        borderRadius: 6
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: false
-        },
-        title: {
-          display: labels.length === 0,
-          text: 'No sales data available'
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: {
-            stepSize: 1
-          },
-          grid: {
-            color: '#e2e8f0'
-          }
-        },
-        x: {
-          grid: {
-            display: false
-          }
-        }
-      }
-    }
-  });
+  updatePopularItemsTable(salesToChart);
 }
 
 async function init() {
