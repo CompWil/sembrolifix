@@ -7,8 +7,8 @@
   <meta property="og:image" content="https://bolt.new/static/og_default.png">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://bolt.new/static/og_default.png">
-  <script type="module" crossorigin src="/assets/index-DNXOMHKP.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-N8j46EUl.css">
+  <script type="module" crossorigin src="/assets/index-kI8KY5H0.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-9f5yUYrT.css">
 </head>
 <body>
   <div class="container">
@@ -44,23 +44,35 @@
                 <th>Date</th>
                 <th>Buyer Name</th>
                 <th>Items Purchased</th>
+                <th>Shipping</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody id="salesTableBody">
               <tr>
-                <td colspan="4" class="loading">Loading sales...</td>
+                <td colspan="5" class="loading">Loading sales...</td>
               </tr>
             </tbody>
           </table>
         </div>
       </section>
 
-      <!-- Trend Chart Section -->
-      <section class="card chart-section">
-        <h2>Popular Items</h2>
-        <div class="chart-container">
-          <canvas id="trendChart"></canvas>
+<section class="card chart-section">
+        <h2>Items Sold Summary</h2>
+        <div class="table-container">
+          <table id="popularItemsTable">
+            <thead>
+              <tr>
+                <th>Item Name</th>
+                <th>Total Sold</th>
+              </tr>
+            </thead>
+            <tbody id="popularItemsTableBody">
+              <tr>
+                <td colspan="2" class="loading">Loading data...</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </section>
     </div>
@@ -82,6 +94,14 @@
         <div class="form-group">
           <label for="saleDate">Sale Date</label>
           <input type="date" id="saleDate" required>
+        </div>
+
+        <div class="form-group">
+          <label for="shipping">Shipping Method</label>
+          <select id="shipping" required>
+            <option value="SPX">SPX</option>
+            <option value="J&T">J&T</option>
+          </select>
         </div>
 
         <div class="form-section">
