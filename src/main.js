@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import Chart from 'chart.js/auto';
+import './extraction.js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;

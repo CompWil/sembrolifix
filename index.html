@@ -13,7 +13,10 @@
   <div class="container">
     <header>
       <h1>SEMBROLI</h1>
-      <button id="addSaleBtn" class="btn-primary">+ Add Sale</button>
+      <div style="display: flex; gap: 1rem;">
+        <button id="addSaleBtn" class="btn-primary">+ Add Sale</button>
+        <button id="extractDocBtn" class="btn-primary">📄 Extract Document</button>
+      </div>
     </header>
 
     <div class="content-grid">
@@ -74,6 +77,32 @@
           </table>
         </div>
       </section>
+    </div>
+  </div>
+
+  <!-- Modal for Document Extraction -->
+  <div id="extractModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Extract Document Data</h2>
+        <button class="close-btn" id="closeExtractModal">&times;</button>
+      </div>
+      <form id="extractForm">
+        <div class="form-group">
+          <label for="documentImage">Upload Document Image</label>
+          <input type="file" id="documentImage" accept="image/*" required>
+        </div>
+        <div id="extractPreview" style="margin: 1rem 0;"></div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" id="cancelExtractBtn">Cancel</button>
+          <button type="submit" class="btn-primary">Extract Data</button>
+        </div>
+      </form>
+      <div id="extractResults" style="margin-top: 1.5rem; display: none;">
+        <h3>Extracted Data</h3>
+        <pre id="resultsJson" style="background: #f5f5f5; padding: 1rem; border-radius: 0.5rem; overflow-x: auto;"></pre>
+        <button id="populateSaleBtn" class="btn-primary" style="margin-top: 1rem;">Populate Sale Form</button>
+      </div>
     </div>
   </div>
 
