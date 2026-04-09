@@ -8,69 +8,69 @@ const corsHeaders = {
 };
 
 interface ExtractionResult {
-  extracted_date: string | null;
-  buyer_name: string | null;
-  shipping_carrier: string | null;
-  product_name: string | null;
-  quantity: number | null;
+  tanggal_dokumen: string | null;
+  penerima: string | null;
+  shipping: string | null;
+  nama_produk: string | null;
+  qty: number | null;
 }
 
-function extractDataFromDocument(base64Image: string): ExtractionResult {
+function extractDataFromDocument(base64Data: string): ExtractionResult {
   const result: ExtractionResult = {
-    extracted_date: null,
-    buyer_name: null,
-    shipping_carrier: null,
-    product_name: null,
-    quantity: null,
+    tanggal_dokumen: null,
+    penerima: null,
+    shipping: null,
+    nama_produk: null,
+    qty: null,
   };
 
-  if (!base64Image) {
+  if (!base64Data) {
     return result;
   }
 
   try {
-    const imageBuffer = Uint8Array.from(atob(base64Image), c => c.charCodeAt(0));
-    const text = new TextDecoder().decode(imageBuffer);
+    const buffer = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+    const text = new TextDecoder().decode(buffer);
 
     // Extract date (YYYY-MM-DD format or variations)
     const dateMatch = text.match(/\d{4}[-\/]\d{1,2}[-\/]\d{1,2}|\d{1,2}[-\/]\d{1,2}[-\/]\d{4}/);
     if (dateMatch) {
-      result.extracted_date = dateMatch[0];
+      result.tanggal_dokumen = dateMatch[0];
     }
 
-    // Extract buyer name (look for keywords like "To:", "Recipient:", "Name:")
-    const nameMatch = text.match(/(?:To|Recipient|Name|Buyer)[\s:]*([A-Za-z\s]+)(?=\n|$|Address|Tel)/i);
+    // Extract penerima (recipient/buyer name)
+    const nameMatch = text.match(/(?:To|Recipient|Name|Buyer|Penerima|Nama Penerima)[\s:]*([A-Za-z\s\u0600-\u06FF]+)(?=\n|$|Address|Tel|Alamat|Jalan)/i);
     if (nameMatch) {
-      result.buyer_name = nameMatch[1].trim();
+      result.penerima = nameMatch[1].trim();
     }
 
     // Extract shipping carrier (SPX, J&T, JNE)
     if (text.match(/SPX/i)) {
-      result.shipping_carrier = "SPX";
+      result.shipping = "SPX";
     } else if (text.match(/J&T|J\s*&\s*T/i)) {
-      result.shipping_carrier = "J&T";
+      result.shipping = "J&T";
     } else if (text.match(/JNE/i)) {
-      result.shipping_carrier = "JNE";
+      result.shipping = "JNE";
     }
 
-    // Extract product name (look for keywords like "Item:", "Product:", "Description:")
-    const productMatch = text.match(/(?:Item|Product|Description|Item Purchased)[\s:]*([A-Za-z0-9\s\-]+)(?=\n|Qty|Quantity|$)/i);
+    // Extract nama produk (product name)
+    const productMatch = text.match(/(?:Item|Product|Description|Item Purchased|Nama Produk|Produk|Barang)[\s:]*([A-Za-z0-9\s\-\u0600-\u06FF]+)(?=\n|Qty|Quantity|Jumlah|$)/i);
     if (productMatch) {
-      result.product_name = productMatch[1].trim();
+      result.nama_produk = productMatch[1].trim();
     }
 
-    // Extract quantity (look for "Qty:", "Quantity:", or numbers before "pcs", "pieces", etc.)
-    const qtyMatch = text.match(/(?:Qty|Quantity)[\s:]*(\d+)/i);
+    // Extract qty (quantity)
+    const qtyMatch = text.match(/(?:Qty|Quantity|Jumlah|Juml)[\s:]*(\d+)/i);
     if (qtyMatch) {
-      result.quantity = parseInt(qtyMatch[1]);
+      result.qty = parseInt(qtyMatch[1]);
     } else {
-      const qtyAltMatch = text.match(/(\d+)\s*(?:pcs|pieces|pce|qty)/i);
+      const qtyAltMatch = text.match(/(\d+)\s*(?:pcs|pieces|pce|qty|buah|pca)/i);
       if (qtyAltMatch) {
-        result.quantity = parseInt(qtyAltMatch[1]);
+        result.qty = parseInt(qtyAltMatch[1]);
       }
     }
   } catch (e) {
-    console.error("Error processing image:", e);
+    console.error("Error processing document:", e);
   }
 
   return result;
@@ -98,11 +98,11 @@ Deno.serve(async (req: Request) => {
       .from("document_extractions")
       .insert([
         {
-          extracted_date: extractedData.extracted_date,
-          buyer_name: extractedData.buyer_name,
-          shipping_carrier: extractedData.shipping_carrier,
-          product_name: extractedData.product_name,
-          quantity: extractedData.quantity,
+          tanggal_dokumen: extractedData.tanggal_dokumen,
+          penerima: extractedData.penerima,
+          shipping: extractedData.shipping,
+          nama_produk: extractedData.nama_produk,
+          qty: extractedData.qty,
           raw_document_data: extractedData,
         },
       ])

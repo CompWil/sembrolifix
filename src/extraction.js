@@ -52,13 +52,24 @@ documentImage.addEventListener('change', (e) => {
   if (file) {
     const reader = new FileReader();
     reader.onload = (event) => {
-      const img = document.createElement('img');
-      img.src = event.target.result;
-      img.style.maxWidth = '100%';
-      img.style.maxHeight = '300px';
-      img.style.borderRadius = '0.5rem';
       extractPreview.innerHTML = '';
-      extractPreview.appendChild(img);
+
+      if (file.type === 'application/pdf') {
+        const preview = document.createElement('div');
+        preview.style.padding = '1rem';
+        preview.style.backgroundColor = '#f5f5f5';
+        preview.style.borderRadius = '0.5rem';
+        preview.style.textAlign = 'center';
+        preview.textContent = `PDF file selected: ${file.name}`;
+        extractPreview.appendChild(preview);
+      } else if (file.type.startsWith('image/')) {
+        const img = document.createElement('img');
+        img.src = event.target.result;
+        img.style.maxWidth = '100%';
+        img.style.maxHeight = '300px';
+        img.style.borderRadius = '0.5rem';
+        extractPreview.appendChild(img);
+      }
     };
     reader.readAsDataURL(file);
   }
@@ -69,7 +80,7 @@ extractForm.addEventListener('submit', async (e) => {
 
   const file = documentImage.files?.[0];
   if (!file) {
-    alert('Please select an image file');
+    alert('Please select a document file (PDF or image)');
     return;
   }
 
@@ -87,6 +98,7 @@ extractForm.addEventListener('submit', async (e) => {
         },
         body: JSON.stringify({
           base64Image: base64String,
+          fileType: file.type,
         }),
       });
 
@@ -115,16 +127,16 @@ populateSaleBtn.addEventListener('click', () => {
   const saleDateInput = document.getElementById('saleDate');
   const shippingSelect = document.getElementById('shipping');
 
-  if (lastExtractedData.buyer_name) {
-    buyerNameInput.value = lastExtractedData.buyer_name;
+  if (lastExtractedData.penerima) {
+    buyerNameInput.value = lastExtractedData.penerima;
   }
 
-  if (lastExtractedData.extracted_date) {
-    saleDateInput.value = lastExtractedData.extracted_date;
+  if (lastExtractedData.tanggal_dokumen) {
+    saleDateInput.value = lastExtractedData.tanggal_dokumen;
   }
 
-  if (lastExtractedData.shipping_carrier) {
-    shippingSelect.value = lastExtractedData.shipping_carrier;
+  if (lastExtractedData.shipping) {
+    shippingSelect.value = lastExtractedData.shipping;
   }
 
   extractModal.classList.remove('show');
