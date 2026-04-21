@@ -89,8 +89,8 @@
       </div>
       <form id="extractForm">
         <div class="form-group">
-          <label for="documentImage">Upload Document (PDF or Image)</label>
-          <input type="file" id="documentImage" accept=".pdf,image/*" required>
+          <label for="documentImage">Upload Document (PDF, Image, CSV, or Excel)</label>
+          <input type="file" id="documentImage" accept=".pdf,image/*,.csv,.xlsx,.xls" required>
         </div>
         <div id="extractPreview" style="margin: 1rem 0;"></div>
         <div class="form-actions">
@@ -101,7 +101,7 @@
       <div id="extractResults" style="margin-top: 1.5rem; display: none;">
         <h3>Extracted Data</h3>
         <pre id="resultsJson" style="background: #f5f5f5; padding: 1rem; border-radius: 0.5rem; overflow-x: auto;"></pre>
-        <button id="populateSaleBtn" class="btn-primary" style="margin-top: 1rem;">Populate Sale Form</button>
+        <button id="populateSaleBtn" class="btn-primary" style="margin-top: 1rem;">Auto-Insert to Recent Sales</button>
       </div>
     </div>
   </div>
